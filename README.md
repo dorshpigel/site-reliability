@@ -101,5 +101,5 @@ This route is in use by the Cron mechanism,it is being called per the interval a
 ---POSSIBLE ARCHITECHTURE:
 This app should potentially run on Kubernetes pod or EC2 (which is the lesser option), if you wish to take the cron job outside of the pod itself you can use a lambda for the requests made for the schdueling, the mongoDB can run and be used via aws document db which is a very stable solution for that kind of data.
 Since this is both an API and a schdueled service, I belive the Kubernetes approach will be more beneficial, since it can provide logging via aws cloudwatch with the right implementation (Logz.io can work too though).
-For authentican I would you firebase if possible, for documentation swagger.
+For authentication I would use firebase if possible, for documentation swagger.
 ```
