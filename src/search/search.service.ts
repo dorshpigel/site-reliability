@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import ProviderResponseDto from './dto/provider.response.dto';
+import { Logger } from '@nestjs/common/services';
+
 
 @Injectable()
 export class SearchService {
-  constructor(private httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) {}
 
-  async getDataFromWhoIs(url: string) {
+  private readonly logger = new Logger('search');
+
+  async getDataFromWhoIs(url: string): Promise<ProviderResponseDto> {
     try {
       this.validateUrl(url);
       const response = await this.httpService.get(
@@ -24,7 +29,7 @@ export class SearchService {
     }
   }
 
-  async getDataFromVirusTotal(url: string) {
+  async getDataFromVirusTotal(url: string): Promise<ProviderResponseDto> {
     try {
       this.validateUrl(url);
       const response = await this.httpService.get(
@@ -45,7 +50,7 @@ export class SearchService {
     }
   }
 
-  validateUrl(url: string) {
+  validateUrl(url: string): void {
     if ((url && url.length < 1) || url === null || url === undefined) {
       throw new Error(`the url you've entered is blank`);
     }

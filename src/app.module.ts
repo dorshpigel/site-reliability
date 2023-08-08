@@ -5,15 +5,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DatabaseModule } from './database/database.module';
 import { SearchController } from './search/search.controller';
 import { SearchModule } from './search/search.module';
-import { ScanTask } from './scan.task';
 import { SearchService } from './search/search.service';
+import { ScanTask } from './scan.task';
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
     MongooseModule.forRoot(process.env.DB_URI),
+    DatabaseModule,
     HttpModule,
     ScheduleModule.forRoot(),
     SearchModule,

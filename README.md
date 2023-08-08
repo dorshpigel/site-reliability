@@ -45,29 +45,61 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
 
-```bash
-# unit tests
-$ npm run test
+## About The Site Reliability App
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
+This Nest.js server is in charge of listing and scraping site reliability data from WHOIS and VirusTotal
 
-## Support
+First steps:
+1.Pull the app from the master branch of this repo
+2.Make sure you have MongoDB installed locally and running on port 27017:
+https://www.mongodb.com/try/download/community
+3.Add the env file I provided to the projects root (won't run without it, .env)
+4.Run the docker file attached 
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+In case you are having issues with the docker file (or you are using node.js for ages,it'll take a minute for you):
+1.Pull the app from the master branch of this repo
+2.Make sure you have MongoDB installed locally and running on port 27017:
+https://www.mongodb.com/try/download/community
+3.Open the project's root via Vscode/terminal 
+4.run -> npm install
+5.Add the env file I provided to the projects root (won't run without it, .env)
+6.run -> npm run start/start:dev
 
-## Stay in touch
+you should be good to go.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Important:
+The schdueling interval is set on a file named scan.task.ts -> it is currently set to run every month,can be configured to basically everything,just change the cronExpression to w/e you like. 
+if you can't find it,ctrl+f -> @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT) 
 
-## License
+There are two relevant user endpoints on this server:
+1. GET http://localhost:3000/get-domain-data?url=www.cnn.com
 
-Nest is [MIT licensed](LICENSE).
+This route returns data for an existing record inside the mongodb, if there's no existing record it will add it to the queue list and it will be added to the db on the next interval
+Returns the data object or a message explaining to wait for the next cycle to run as requested
+
+it takes one query parameter: url - string.
+
+
+2. POST http://localhost:3000/insert-to-list
+
+Body:
+{
+    "url":"www.cnn.com"
+}
+
+This route inserts a specific url to the queue list in order for it to be scanned on the next interval.
+Will return a message regarding an invalid url or regarding a member that already exists on the list.
+
+
+3. GET http://localhost:3000/start-task
+
+This route is in use by the Cron mechanism,it is being called per the interval and collects the relevant data from the relevant members of the list,also updates the status of thus members in order to keep track on the status and update date.
+
+
+---POSSIBLE ARCHITECHTURE:
+This app should potentially run on Kubernetes pod or EC2 (which is the lesser option), if you wish to take the cron job outside of the pod itself you can use a lambda for the requests made for the schdueling, the mongoDB can run and be used via aws document db which is a very stable solution for that kind of data.
+Since this is both an API and a schdueled service, I belive the Kubernetes approach will be more beneficial, since it can provide logging via aws cloudwatch with the right implementation (Logz.io can work too though).
+For authentican I would you firebase if possible, for documentation swagger.
+```

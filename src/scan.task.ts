@@ -7,10 +7,10 @@ import { firstValueFrom } from 'rxjs';
 export class ScanTask {
   constructor(private httpService: HttpService) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS) // Change the interval as per your requirements
+  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT) // Change the interval as per your requirements
   async runRoute() {
     try {
-      const response = await this.httpService.get('http://localhost:3000/');
+      const response = await this.httpService.get(`http://localhost:${process.env.PORT}/start-task`);
       console.log(
         'Scheduled task result:',
         (await firstValueFrom(response)).data,
