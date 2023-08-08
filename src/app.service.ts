@@ -97,7 +97,7 @@ export class AppService {
         updatedDomains.push(domain.url);
       } catch (e) {
         this.logger.log(`there was an issue inserting this url: ${domain.url}`);
-        this.logger.log(e.message)
+        this.logger.log(e.message);
         continue;
       }
     }
@@ -122,9 +122,10 @@ export class AppService {
           updatedAt: new Date(),
           url: domain.url,
         });
+        updatedDomains.push(domain.url);
       } catch (e) {
         this.logger.log(`there was an issue inserting this url: ${domain.url}`);
-        this.logger.log(e.message)
+        this.logger.log(e.message);
         continue;
       }
     }
