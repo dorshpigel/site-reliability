@@ -77,8 +77,8 @@ export class AppService {
     for (const domain of domainsToScan) {
       try {
         const gatheredData = await Promise.all([
-          await this.searchService.getDataFromWhoIs(domain.url),
-          await this.searchService.getDataFromVirusTotal(domain.url),
+          this.searchService.getDataFromWhoIs(domain.url),
+          this.searchService.getDataFromVirusTotal(domain.url),
         ]);
         this.logger.log('got data');
         const newResult: InsertResultDto = {
