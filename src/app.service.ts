@@ -80,15 +80,33 @@ export class AppService {
     for (const domain of allDomains) {
       try {
         const gatheredData = await Promise.all([
-          this.searchService.getDataFromWhoIs(domain.url),
-          this.searchService.getDataFromVirusTotal(domain.url),
+          (() => {
+            try {
+              return this.searchService.getDataFromWhoIs(domain.url);
+            } catch (error) {
+              // Handle error from getDataFromWhoIs
+              console.error('Error from getDataFromWhoIs:', error);
+              return null;
+            }
+          })(),
+          (() => {
+            try {
+              return this.searchService.getDataFromVirusTotal(domain.url);
+            } catch (error) {
+              // Handle error from getDataFromVirusTotal
+              console.error('Error from getDataFromVirusTotal:', error);
+              return null; 
+            }
+          })(),
         ]);
         this.logger.log('got data');
         const newResult: InsertResultDto = {
           url: domain.url,
           updatedAt: new Date(),
-          whois_data: gatheredData[0].data ? gatheredData[0].data : {},
-          virustotal_data: gatheredData[1].data ? gatheredData[1].data : {},
+          ...(gatheredData[0].data && { whois_data: gatheredData[0].data }),
+          ...(gatheredData[1].data && {
+            virustotal_data: gatheredData[1].data,
+          }),
         };
         this.logger.log(`now inserting ${domain.url}`);
         switch (domain.status) {
