@@ -19,7 +19,8 @@ EXPOSE 3000
 # Install MongoDB locally
 RUN apt-get update && apt-get install -y mongodb
 
-# Start MongoDB on port 27017
-CMD ["mongod", "--dbpath", "/data/db", "--bind_ip", "0.0.0.0", "--port", "27017"] & \
-    sleep 5 && \
-    npm run start
+# Create the MongoDB data directory
+RUN mkdir -p /data/db
+
+# Start MongoDB on port 27017 and then start the Node.js application
+CMD mongod --bind_ip 0.0.0.0 --port 27017 --dbpath /data/db & npm run start

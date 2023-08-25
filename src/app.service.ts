@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database/database.service';
 import { SearchService } from './search/search.service';
-import { Status } from './database/schemas/listResult.schema';
-import InsertToListDto from './database/dto/insertToList.dto';
+import { ListResult, Status } from './database/schemas/listResult.schema';
 import InsertResultDto from './database/dto/insertResult.dto';
 import { Logger } from '@nestjs/common/services';
 import { Result } from './database/schemas/result.schema';
@@ -68,13 +67,17 @@ export class AppService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const domainsToScan = await this.dbService.getListPerStatus(Status.UNDONE);
-    const oldDomains = await this.dbService.getListWithFilter({
+    const domainsToScan: ListResult[] = await this.dbService.getListPerStatus(
+      Status.UNDONE,
+    );
+    const oldDomains: ListResult[] = await this.dbService.getListWithFilter({
       status: Status.DONE,
       updatedAt: { $lt: thirtyDaysAgo },
     });
 
-    for (const domain of domainsToScan) {
+    const allDomains: ListResult[] = [...domainsToScan, ...oldDomains];
+
+    for (const domain of allDomains) {
       try {
         const gatheredData = await Promise.all([
           this.searchService.getDataFromWhoIs(domain.url),
@@ -88,35 +91,18 @@ export class AppService {
           virustotal_data: gatheredData[1].data ? gatheredData[1].data : {},
         };
         this.logger.log(`now inserting ${domain.url}`);
-        await this.dbService.insertResult(newResult);
-        await this.dbService.updateList({
-          status: Status.DONE,
-          updatedAt: new Date(),
-          url: domain.url,
-        });
-        updatedDomains.push(domain.url);
-      } catch (e) {
-        this.logger.log(`there was an issue inserting this url: ${domain.url}`);
-        this.logger.log(e.message);
-        continue;
-      }
-    }
-
-    for (const domain of oldDomains) {
-      try {
-        const gatheredData = await Promise.all([
-          await this.searchService.getDataFromWhoIs(domain.url),
-          await this.searchService.getDataFromVirusTotal(domain.url),
-        ]);
-        this.logger.log('got data');
-        const updateResult: InsertResultDto = {
-          url: domain.url,
-          updatedAt: new Date(),
-          whois_data: gatheredData[0].data ? gatheredData[0].data : {},
-          virustotal_data: gatheredData[1].data ? gatheredData[1].data : {},
-        };
-        this.logger.log(`now inserting ${domain.url}`);
-        await this.dbService.updateResult(updateResult);
+        switch (domain.status) {
+          case Status.UNDONE: {
+            await this.dbService.insertResult(newResult);
+            break;
+          }
+          case Status.DONE: {
+            await this.dbService.updateResult(newResult);
+            break;
+          }
+          default:
+            break;
+        }
         await this.dbService.updateList({
           status: Status.DONE,
           updatedAt: new Date(),

@@ -1,6 +1,5 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { SearchService } from './search.service';
-import TestDto from './dto/url.dto';
 
 @Controller('search')
 export class SearchController {
