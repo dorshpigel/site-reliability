@@ -67,38 +67,35 @@ export class AppService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const domainsToScan: ListResult[] = await this.dbService.getListPerStatus(
-      Status.UNDONE,
-    );
-    const oldDomains: ListResult[] = await this.dbService.getListWithFilter({
-      status: Status.DONE,
-      updatedAt: { $lt: thirtyDaysAgo },
+    const allDomains: ListResult[] = await this.dbService.getListWithFilter({
+      $or: [
+        {
+          status: Status.DONE,
+          updatedAt: { $lt: thirtyDaysAgo },
+        },
+        {
+          status: Status.UNDONE,
+        },
+      ],
     });
-
-    const allDomains: ListResult[] = [...domainsToScan, ...oldDomains];
 
     for (const domain of allDomains) {
       try {
-        const gatheredData = await Promise.all([
-          (() => {
-            try {
-              return this.searchService.getDataFromWhoIs(domain.url);
-            } catch (error) {
-              // Handle error from getDataFromWhoIs
-              console.error('Error from getDataFromWhoIs:', error);
-              return null;
-            }
-          })(),
-          (() => {
-            try {
-              return this.searchService.getDataFromVirusTotal(domain.url);
-            } catch (error) {
-              // Handle error from getDataFromVirusTotal
+        const promises: Promise<ReturnType<
+          typeof this.searchService.getDataFromWhoIs
+        > | null>[] = [
+          this.searchService.getDataFromWhoIs(domain.url).catch((error) => {
+            console.error('Error from getDataFromWhoIs:', error);
+            return null;
+          }),
+          this.searchService
+            .getDataFromVirusTotal(domain.url)
+            .catch((error) => {
               console.error('Error from getDataFromVirusTotal:', error);
-              return null; 
-            }
-          })(),
-        ]);
+              return null;
+            }),
+        ];
+        const gatheredData = await Promise.all(promises);
         this.logger.log('got data');
         const newResult: InsertResultDto = {
           url: domain.url,
