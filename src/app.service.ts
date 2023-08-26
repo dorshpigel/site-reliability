@@ -97,14 +97,14 @@ export class AppService {
         ];
         const gatheredData = await Promise.all(promises);
         this.logger.log('got data');
-        const newResult: InsertResultDto = {
+        const newResult = {
           url: domain.url,
           updatedAt: new Date(),
           ...(gatheredData[0].data && { whois_data: gatheredData[0].data }),
           ...(gatheredData[1].data && {
             virustotal_data: gatheredData[1].data,
           }),
-        };
+        } as InsertResultDto;
         this.logger.log(`now inserting ${domain.url}`);
         switch (domain.status) {
           case Status.UNDONE: {
