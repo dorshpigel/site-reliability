@@ -53,10 +53,8 @@ This Nest.js server is in charge of listing and scraping site reliability data f
 
 First steps:
 1.Pull the app from the master branch of this repo
-2.Make sure you have MongoDB installed locally and running on port 27017:
-https://www.mongodb.com/try/download/community
-3.Add the env file I provided to the projects root (won't run without it, .env)
-4.Run the docker file attached 
+2.Add the env file I provided to the projects root (won't run without it, .env)
+3.Run the docker file attached 
 
 In case you are having issues with the docker file (or you are using node.js for ages,it'll take a minute for you):
 1.Pull the app from the master branch of this repo
