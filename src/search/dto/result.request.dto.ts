@@ -1,3 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger/dist';
+
 export default class ResultRquestDto {
-    url: string;
+  @ApiProperty({ type: String })
+  url: string;
 }
