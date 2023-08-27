@@ -71,8 +71,11 @@ Important:
 The schdueling interval is set on a file named scan.task.ts -> it is currently set to run every month,can be configured to basically everything,just change the cronExpression to w/e you like. 
 if you can't find it,ctrl+f -> @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT) 
 
+Documentation (Swagger): 
+http://localhost:3000/api
+
 There are two relevant user endpoints on this server:
-1. GET http://localhost:3000/get-domain-data?url=www.cnn.com
+1. GET http://localhost:3000/search/get-domain-data?url=www.cnn.com
 
 This route returns data for an existing record inside the mongodb, if there's no existing record it will add it to the queue list and it will be added to the db on the next interval
 Returns the data object or a message explaining to wait for the next cycle to run as requested
@@ -80,7 +83,7 @@ Returns the data object or a message explaining to wait for the next cycle to ru
 it takes one query parameter: url - string.
 
 
-2. POST http://localhost:3000/insert-to-list
+2. POST http://localhost:3000/search/insert-to-list
 
 Body:
 {
@@ -91,7 +94,7 @@ This route inserts a specific url to the queue list in order for it to be scanne
 Will return a message regarding an invalid url or regarding a member that already exists on the list.
 
 
-3. GET http://localhost:3000/start-task
+3. GET http://localhost:3000/search/start-task
 
 This route is in use by the Cron mechanism,it is being called per the interval and collects the relevant data from the relevant members of the list,also updates the status of thus members in order to keep track on the status and update date.
 
@@ -99,5 +102,5 @@ This route is in use by the Cron mechanism,it is being called per the interval a
 ---POSSIBLE ARCHITECHTURE:
 This app should potentially run on Kubernetes pod or EC2 (which is the lesser option), if you wish to take the cron job outside of the pod itself you can use a lambda for the requests made for the schdueling, the mongoDB can run and be used via aws document db which is a very stable solution for that kind of data.
 Since this is both an API and a schdueled service, I belive the Kubernetes approach will be more beneficial, since it can provide logging via aws cloudwatch with the right implementation (Logz.io can work too though).
-For authentication I would use firebase if possible, for documentation swagger.
+For authentication I would use firebase if possible.
 ```
