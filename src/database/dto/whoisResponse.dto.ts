@@ -1,4 +1,4 @@
-export interface DomainRegistrar {
+export class DomainRegistrar {
     iana_id: string;
     registrar_name: string;
     whois_server: string;
@@ -7,7 +7,7 @@ export interface DomainRegistrar {
     phone_number: string;
 }
 
-export interface ContactInformation {
+export class ContactInformation {
     name: string;
     company: string;
     street: string;
@@ -21,7 +21,7 @@ export interface ContactInformation {
     fax: string;
 }
 
-export interface WhoisData {
+export class WhoisData {
     status: boolean;
     domain_name: string;
     query_time: string;
@@ -39,7 +39,7 @@ export interface WhoisData {
     whois_raw_domain: string;
 }
 
-export interface RegistryData {
+export class RegistryData {
     domain_name: string;
     query_time: string;
     whois_server: string;
@@ -50,7 +50,7 @@ export interface RegistryData {
     whois_raw_registery: string;
 }
 
-export interface WhoisInfo {
+export class WhoisInfo {
     whois_data: WhoisData;
     registry_data: RegistryData;
 }

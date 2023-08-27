@@ -1,22 +1,22 @@
-export interface DNSRecord {
+export class DNSRecord {
     type: string;
     value: string;
     ttl: number;
   }
   
-  export interface PopularityRank {
+  export class PopularityRank {
     timestamp: number;
     rank: number;
   }
   
-  export interface AnalysisResults {
+  export class AnalysisResults {
     category: string;
     result: string;
     method: string;
     engine_name: string;
   }
   
-  export interface LastHttpsCertificate {
+  export class LastHttpsCertificate {
     public_key: {
       rsa: {
         key_size: number;
@@ -60,12 +60,12 @@ export interface DNSRecord {
     size: number;
   }
   
-  export interface TotalVotes {
+  export class TotalVotes {
     harmless: number;
     malicious: number;
   }
   
-  export interface DomainData {
+  export class DomainData {
     attributes: {
       last_dns_records: DNSRecord[];
       jarm: string;
@@ -101,7 +101,7 @@ export interface DNSRecord {
     };
   }
   
-  export interface DomainResponse {
+  export class DomainResponse {
     data: DomainData;
   }
   
