@@ -28,7 +28,7 @@ export class SearchController {
   })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @Post('insert-to-list')
-  async insertToList(@Body() object: URLDto) {
+  async insertToList(@Body() object: URLDto):Promise<string> {
     return await this.searchService.insertToList(object.url);
   }
 
