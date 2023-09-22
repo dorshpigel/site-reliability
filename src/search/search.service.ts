@@ -9,10 +9,12 @@ import InsertResultDto from 'src/database/dto/insertResult.dto';
 import { Result } from 'src/database/schemas/result.schema';
 import { ListResult } from 'src/database/schemas/listResult.schema';
 
-
 @Injectable()
 export class SearchService {
-  constructor(private readonly httpService: HttpService,private readonly dbService: DatabaseService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly dbService: DatabaseService,
+  ) {}
 
   private readonly logger = new Logger('search');
 
@@ -62,9 +64,8 @@ export class SearchService {
     return;
   }
 
-
-   //function to insert new url to queue list
-   async insertToList(url: string): Promise<string> {
+  //function to insert new url to queue list
+  async insertToList(url: string): Promise<string> {
     const extractedDomain = this.extractDomain(url);
     if (extractedDomain === null) {
       return 'Not a valid domain,please try another';
@@ -136,21 +137,19 @@ export class SearchService {
             console.error('Error from getDataFromWhoIs:', error);
             return null;
           }),
-          this
-            .getDataFromVirusTotal(domain.url)
-            .catch((error) => {
-              console.error('Error from getDataFromVirusTotal:', error);
-              return null;
-            }),
+          this.getDataFromVirusTotal(domain.url).catch((error) => {
+            console.error('Error from getDataFromVirusTotal:', error);
+            return null;
+          }),
         ];
-        const gatheredData = await Promise.all(promises);
+        const [whoIsData, virusTotalData] = await Promise.all(promises);
         this.logger.log('got data');
         const newResult = {
           url: domain.url,
           updatedAt: new Date(),
-          ...(gatheredData[0].data && { whois_data: gatheredData[0].data }),
-          ...(gatheredData[1].data && {
-            virustotal_data: gatheredData[1].data,
+          ...(whoIsData.data && { whois_data: whoIsData.data }),
+          ...(virusTotalData.data && {
+            virustotal_data: virusTotalData.data,
           }),
         } as InsertResultDto;
         this.logger.log(`now inserting ${domain.url}`);
